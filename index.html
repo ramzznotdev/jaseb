@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bot Telegram Jaseb API — Skinned</title>
+
+  <!-- Font & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --main: #ffffff;
+      --second: #cccccc;
+      --bg: #0e0e0e;
+      --text: #eeeeee;
+      --accent: #00acee;
+      --glass-bg: rgba(255,255,255,0.03);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Orbitron', sans-serif; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      position: relative;
+      overflow: auto;
+    }
+    #particles-js { position: fixed; width: 100%; height: 100%; z-index: 0; top: 0; left: 0; }
+
+    /* glass container */
+    .glass-box {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 18px;
+      padding: 22px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 30px rgba(255,255,255,0.03);
+      z-index: 2;
+      max-width: 760px;
+      width: 100%;
+    }
+
+    .profile { display:flex; align-items:center; gap:14px; margin-bottom:12px; }
+    .profile img { width:72px; height:72px; border-radius:50%; border:2px solid var(--main); object-fit:cover; }
+    .profile-info h2 { font-size:1.05rem; color:var(--main); line-height:1; }
+    .status { font-size:0.9rem; color:#bbbbbb; }
+    .status i { color:#00ff88; margin-right:6px; }
+
+    h1 { font-size:1.28rem; color:var(--main); margin-bottom:12px; text-align:center; animation: neon 2s infinite alternate; }
+    .neon { color: #0ff; text-shadow: 0 0 6px #0ff, 0 0 12px #0ff, 0 0 22px #0ff; animation: flicker 1.5s infinite alternate; }
+    @keyframes flicker {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity:1; }
+      20%, 24%, 55% { opacity:0.4; }
+    }
+
+    /* inputs */
+    input, select, textarea {
+      background: var(--glass-bg);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 10px 12px;
+      width: 100%;
+      margin-bottom: 8px;
+      transition: 0.18s;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border: 1px solid var(--main);
+      background: rgba(255,255,255,0.06);
+      transform: translateY(-1px);
+    }
+
+    /* tombol lebih kecil */
+    button.main-btn {
+      background: linear-gradient(135deg, var(--main), var(--second));
+      border: none;
+      color: black;
+      width: 100%;
+      padding: 8px 10px; /* kecil */
+      border-radius: 28px;
+      font-size: 13px; /* kecil */
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 0 12px rgba(255,255,255,0.06);
+      transition: 0.18s;
+      font-weight: 700;
+    }
+    button.small-btn {
+      background: rgba(255,255,255,0.06);
+      color: var(--main);
+      border: 1px solid rgba(255,255,255,0.09);
+      padding: 7px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    button.small-btn:hover, button.main-btn:hover { transform: translateY(-3px); }
+
+    .row { display:flex; gap:10px; margin-top:6px; }
+    .col { flex:1; }
+
+    .card-options { display:flex; gap:10px; margin:8px 0 12px 0; flex-wrap:wrap; }
+    .card { background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:8px 10px; cursor:pointer; display:flex; gap:8px; align-items:center; font-size:13px; }
+    .card.active { border:2px solid var(--main); box-shadow:0 0 12px rgba(255,255,255,0.06); transform:scale(1.03); }
+
+    #consoleOutput, #result { margin-top:8px; background: rgba(0,0,0,0.35); border-radius:10px; padding:10px; font-family:monospace; font-size:12px; color:#e6e6e6; max-height:150px; overflow:auto; white-space:pre-line; }
+
+    .list { background: rgba(255,255,255,0.02); padding:8px; border-radius:8px; max-height:160px; overflow:auto; font-size:13px; color:#cfd8dc; }
+    .logo-mini { width:52px; height:52px; border-radius:8px; object-fit:cover; border:1px solid rgba(255,255,255,0.06); }
+
+    #popup { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); display:none; justify-content:center; align-items:center; z-index:999; }
+    .popup-content { background:#111; color:#00ff88; padding:20px; border-radius:12px; text-align:center; max-width:90%; box-shadow:0 0 20px #00ff88; }
+    .popup-content .close-btn { position:absolute; top:8px; right:12px; font-size:1.6rem; color:#ff4d4d; cursor:pointer; }
+
+    @media (max-width: 640px) {
+      .glass-box { padding:16px; border-radius:12px; }
+      .profile img { width:60px; height:60px; }
+      button.main-btn { padding: 7px 10px; font-size:12px; border-radius:22px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="particles-js"></div>
+
+  <div id="popup">
+    <div class="popup-content">
+      <span class="close-btn" onclick="closePopup()">&times;</span>
+      <div id="popup-message"></div>
+    </div>
+  </div>
+
+  <div class="glass-box" id="main-box">
+    <div class="profile">
+      <img id="topLogo" src="https://files.catbox.moe/5p4j4u.jpg" alt="logo" />
+      <div class="profile-info">
+        <h2 id="userLabel">RAMZZ JASEB</h2>
+        <span class="status"><i class="fas fa-circle"></i> Disconnected</span>
+      </div>
+    </div>
+
+    <h1 class="neon"><i class="fab fa-telegram"></i> Bot Telegram Jaseb</h1>
+
+    <!-- Pages -->
+    <div id="pageLogin" style="display:none;">
+      <input type="text" id="username" placeholder="Username" autocomplete="off" />
+      <input type="password" id="password" placeholder="Password" autocomplete="off" />
+      <div class="row">
+        <div class="col"><button class="main-btn" onclick="checkLogin()"><i class="fas fa-right-to-bracket"></i> Login</button></div>
+      </div>
+      <p id="loginInfo" style="color:#ff8888; margin-top:8px; text-align:center; font-size:13px;"></p>
+    </div>
+
+    <div id="pageDashboard" style="display:none;">
+      <!-- Display logged in user + logout -->
+      <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+        <div style="flex:1">
+          <div style="font-size:13px; color:#bdbdbd;">Login sebagai</div>
+          <div id="userDisplayName" style="font-weight:700; font-size:15px; color:var(--main);"></div>
+        </div>
+        <div style="width:120px;">
+          <button class="small-btn" onclick="logout()" style="width:100%"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+      </div>
+
+      <!-- Token -->
+      <div style="margin-top:6px;">
+        <div style="font-size:13px; color:#bdbdbd; margin-bottom:6px;">Token Bot Telegram:</div>
+        <input type="text" id="token" placeholder="Masukkan token bot" />
+        <div class="row">
+          <div class="col"><button class="main-btn" onclick="saveToken()"><i class="fas fa-save"></i> Simpan Token</button></div>
+          <div style="width:120px;"><button class="small-btn" onclick="hapusToken()"><i class="fas fa-trash"></i> Hapus</button></div>
+        </div>
+      </div>
+
+      <hr style="border:none; height:8px; opacity:0.03; margin:12px 0;">
+
+      <!-- Group IDs -->
+      <div>
+        <div style="font-size:13px; color:#bdbdbd; margin-bottom:6px;">Masukkan ID Group Telegram (pisahkan spasi atau koma):</div>
+        <textarea id="groupId" placeholder="Masukkan hingga 10000 ID group" rows="3"></textarea>
+        <div class="row" style="margin-bottom:8px;">
+          <div class="col"><button class="main-btn" id="addGroupBtn" onclick="addGroup()"><i class="fas fa-plus"></i> Tambah ID</button></div>
+          <div style="width:120px;"><button class="small-btn" onclick="removeGroup()"><i class="fas fa-minus"></i> Hapus ID</button></div>
+        </div>
+
+        <div style="font-size:13px; color:#bdbdbd; margin-bottom:6px;">Upload file .txt (list ID):</div>
+        <input type="file" id="fileInput" accept=".txt" onchange="loadFromFile()" />
+        <div style="margin-top:8px;">
+          <div class="list" id="groupList"><b>Jumlah Group:</b> 0</div>
+        </div>
+      </div>
+
+      <hr style="border:none; height:8px; opacity:0.03; margin:12px 0;">
+
+      <!-- Message -->
+      <div>
+        <div style="font-size:13px; color:#bdbdbd; margin-bottom:6px;">Pesan Teks:</div>
+        <textarea id="message" placeholder="Masukkan pesan panjang" rows="5"></textarea>
+
+        <div style="margin-top:8px; font-size:13px; color:#bdbdbd; margin-bottom:6px;">Foto (opsional):</div>
+        <input type="file" id="photo" accept="image/*" />
+
+        <div class="row" style="margin-top:10px;">
+          <div class="col"><button class="main-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i> Kirim ke Semua Group</button></div>
+          <div style="width:140px;"><button class="small-btn" onclick="previewGroups()"><i class="fas fa-eye"></i> Lihat List</button></div>
+        </div>
+
+        <div id="consoleOutput" style="display:block;"></div>
+        <div id="result"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Particles script -->
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <script>
+    particlesJS("particles-js", {
+      particles: {
+        number: { value: 60 },
+        color: { value: "#ffffff" },
+        shape: { type: "circle" },
+        opacity: { value: 0.42 },
+        size: { value: 3, random: true },
+        line_linked: { enable: true, distance: 140, color: "#ffffff", opacity: 0.25, width: 1 },
+        move: { enable: true, speed: 2 }
+      },
+      interactivity: {
+        events: { onhover: { enable: true, mode: "grab" } },
+        modes: { grab: { distance: 200, line_linked: { opacity: 1 } } }
+      },
+      retina_detect: true
+    });
+  </script>
+
+  <script>
+    /*********** LOGIN (hardcoded) ***********/
+    const USERNAME1 = "Ramzz";
+    const PASSWORD1 = "ramz";
+
+    const USERNAME2 = "free";
+    const PASSWORD2 = "free1";
+
+    let currentUser = localStorage.getItem("currentUser") || null;
+    let groups = [];
+    let botToken = "";
+
+    function showPage(page) {
+      document.getElementById('pageLogin').style.display = page === 'login' ? 'block' : 'none';
+      document.getElementById('pageDashboard').style.display = page === 'dashboard' ? 'block' : 'none';
+    }
+
+    function updateProfileDisplay(name) {
+      document.getElementById('userDisplayName').textContent = name;
+      document.getElementById('userLabel').textContent = "RAMZZ JASEB";
+      document.querySelector('.status').innerHTML = '<i class="fas fa-circle"></i> Connected';
+    }
+
+    function checkLogin() {
+      let user = document.getElementById("username").value.trim();
+      let pass = document.getElementById("password").value.trim();
+      const info = document.getElementById('loginInfo');
+
+      if (!user || !pass) {
+        info.textContent = "Isi username & password!";
+        return;
+      }
+
+      if ((user === USERNAME1 && pass === PASSWORD1) || (user === USERNAME2 && pass === PASSWORD2)) {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("currentUser", user);
+        currentUser = user;
+        loadUserData();
+        showPage('dashboard');
+        updateProfileDisplay(currentUser);
+        info.textContent = "";
+      } else {
+        info.innerHTML = 'Login salah! Silakan beli akses di <a href="https://t.me/RannTzy1" target="_blank" style="color:var(--accent);">@RannTzy1</a>';
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("isLoggedIn");
+      localStorage.removeItem("currentUser");
+      location.reload();
+    }
+
+    function getStorageKey(base) {
+      if (!currentUser) return base;
+      return `${base}_${currentUser}`;
+    }
+
+    /*********** DATA LOAD/SAVE ***********/
+    function loadUserData() {
+  groups = JSON.parse(localStorage.getItem(getStorageKey("groupIds")) || "[]");
+  botToken = localStorage.getItem(getStorageKey("botToken")) || "";
+
+  const tokenInputEl = document.getElementById("token");
+  if (botToken) {
+    // kalau token sudah ada → hide input token
+    tokenInputEl.style.display = "none";
+    tokenInputEl.value = botToken;
+  } else {
+    // kalau belum ada → show input token
+    tokenInputEl.style.display = "block";
+    tokenInputEl.value = "";
+  }
+
+  renderGroups();
+}
+
+    function saveGroups() {
+      localStorage.setItem(getStorageKey("groupIds"), JSON.stringify(groups));
+      renderGroups();
+    }
+
+    function renderGroups() {
+      const el = document.getElementById("groupList");
+      el.innerHTML = `<b>Jumlah Group:</b> ${groups.length}`;
+    }
+
+    function addGroup() {
+      let raw = document.getElementById("groupId").value.trim();
+      if (!raw) return;
+      let ids = raw.split(/[\s,]+/).map(id => id.trim()).filter(id => id && !groups.includes(id));
+      groups = [...groups, ...ids];
+      saveGroups();
+      document.getElementById("groupId").value = "";
+    }
+
+    function removeGroup() {
+      let raw = document.getElementById("groupId").value.trim();
+      if (!raw) return;
+      let ids = raw.split(/[\s,]+/).map(id => id.trim());
+      groups = groups.filter(g => !ids.includes(g));
+      saveGroups();
+      document.getElementById("groupId").value = "";
+    }
+
+    function loadFromFile() {
+      let file = document.getElementById("fileInput").files[0];
+      if (!file) return;
+      let reader = new FileReader();
+      reader.onload = function(e) {
+        let text = e.target.result || "";
+        let ids = text.split(/[\s,]+/).map(id => id.trim()).filter(id => id && !groups.includes(id));
+        groups = [...groups, ...ids];
+        saveGroups();
+      };
+      reader.readAsText(file);
+    }
+
+    function saveToken() {
+  let tokenInput = document.getElementById("token").value.trim();
+  if (!tokenInput) return alert("Masukkan token dulu!");
+  botToken = tokenInput;
+  localStorage.setItem(getStorageKey("botToken"), botToken);
+  alert("Token berhasil disimpan!");
+  loadUserData(); // refresh tampilan supaya input hilang
+}
+
+    function hapusToken() {
+  localStorage.removeItem(getStorageKey("botToken"));
+  botToken = "";
+  alert("Token dihapus!");
+  loadUserData(); // refresh tampilan supaya input muncul lagi
+}
+
+    let isGroupListVisible = false; // status tampil/sembunyi
+
+function previewGroups() {
+  const out = document.getElementById('consoleOutput');
+
+  if (isGroupListVisible) {
+    // kalau lagi tampil → sembunyikan
+    out.style.display = "none";
+    isGroupListVisible = false;
+  } else {
+    // kalau lagi sembunyi → tampilkan
+    out.textContent = 'Daftar ID:\n' + (groups.length ? groups.join('\n') : '(kosong)');
+    out.style.display = "block";
+    isGroupListVisible = true;
+  }
+}
+
+    async function sendMessage() {
+      let token = localStorage.getItem(getStorageKey("botToken")) || document.getElementById("token").value.trim();
+      let text = document.getElementById("message").value.trim();
+      let photoFile = document.getElementById("photo").files[0];
+      const out = document.getElementById('consoleOutput');
+
+      if (!token || groups.length === 0) {
+        alert("Token dan ID group harus diisi!");
+        return;
+      }
+      if (!text && !photoFile) {
+        if (!confirm("Pesan kosong dan tanpa foto. Lanjutkan kirim kosong?")) return;
+      }
+
+      out.textContent = '';
+      let sent = 0;
+
+      for (let i = 0; i < groups.length; i++) {
+        let id = groups[i];
+        try {
+          out.textContent += `[${i+1}] Mengirim ke ${id}...\n`;
+          if (photoFile) {
+            let formData = new FormData();
+            formData.append("chat_id", id);
+            formData.append("photo", photoFile);
+            if (text.length <= 1024) {
+              formData.append("caption", text);
+              await fetch(`https://api.telegram.org/bot${encodeURIComponent(token)}/sendPhoto`, { method: "POST", body: formData });
+            } else {
+              formData.append("caption", text.substring(0,1024));
+              await fetch(`https://api.telegram.org/bot${encodeURIComponent(token)}/sendPhoto`, { method: "POST", body: formData });
+              await fetch(`https://api.telegram.org/bot${encodeURIComponent(token)}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chat_id: id, text: text })
+              });
+            }
+          } else {
+            let res = await fetch(`https://api.telegram.org/bot${encodeURIComponent(token)}/sendMessage`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ chat_id: id, text: text })
+            });
+            // optional check for rate limit or error
+            let data = await res.json().catch(()=>null);
+            if (data && !data.ok && data.parameters && data.parameters.retry_after) {
+              out.textContent += `  → Limit, tunggu ${data.parameters.retry_after} detik...\n`;
+              await new Promise(r => setTimeout(r, (data.parameters.retry_after || 1) * 1000));
+              i--; // retry this id
+              continue;
+            }
+          }
+          sent++;
+          out.textContent += `  ✓ Terkirim ke ${id}\n`;
+        } catch (err) {
+          console.error('Gagal kirim ke', id, err);
+          out.textContent += `  ✗ Gagal kirim ke ${id}\n`;
+        }
+        // small delay to be polite
+        await new Promise(r => setTimeout(r, 600));
+      }
+
+      out.textContent += `\n✅ Pengiriman selesai. Terkirim: ${sent}/${groups.length}\n`;
+      showPopup(`✅ Pengiriman selesai. Terkirim: ${sent}/${groups.length}`);
+    }
+
+    function closePopup() { document.getElementById('popup').style.display = 'none'; }
+    function showPopup(msg) {
+      document.getElementById('popup-message').innerHTML = msg;
+      document.getElementById('popup').style.display = 'flex';
+    }
+
+    // Init on load: check login state
+    window.onload = () => {
+      if (localStorage.getItem("isLoggedIn") === "true" && localStorage.getItem("currentUser")) {
+        currentUser = localStorage.getItem("currentUser");
+        loadUserData();
+        showPage('dashboard');
+        updateProfileDisplay(currentUser);
+      } else {
+        showPage('login');
+      }
+    };
+  </script>
+</body>
+</html>
